@@ -1,0 +1,5 @@
+# Let's Encrypt certificate storage (contains private keys/certs)
+letsencrypt/
+
+# Environment files with local secrets/config
+.env
