@@ -1,5 +1,16 @@
-# Let's Encrypt certificate storage (contains private keys/certs)
-letsencrypt/
+# Dependencies / build output
+node_modules/
+.next/
+dist/
+build/
 
-# Environment files with local secrets/config
+# Local secrets/config
 .env
+.env.local
+
+# Traefik's Let's Encrypt certificate storage (contains private keys/certs)
+traefik/letsencrypt/
+
+# Editor/OS cruft
+.DS_Store
+*.log

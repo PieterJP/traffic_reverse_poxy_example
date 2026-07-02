@@ -1,0 +1,40 @@
+services:
+  dbc:
+    build: .
+    container_name: dbc
+    restart: unless-stopped
+    expose:
+      - "3000"
+    networks:
+      - web
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=web"
+      # Public site (internet facing). /dbc/admin is excluded so it is NOT reachable here.
+      - "traefik.http.routers.dbc.rule=Host(`pjp.tplinkdns.com`) && PathPrefix(`/dbc`) && !PathPrefix(`/dbc/admin`)"
+      - "traefik.http.routers.dbc.entrypoints=websecure"
+      - "traefik.http.routers.dbc.tls=true"
+      - "traefik.http.routers.dbc.tls.certresolver=le"
+      - "traefik.http.routers.dbc.service=dbc"
+      # Admin page, served only on the internal-only :8443 entry point (LAN-only).
+      # Host-pinned + TLS so it (attempts to) serve the Let's Encrypt cert for
+      # pjp.tplinkdns.com. NOTE: pjp.tplinkdns.com's DDNS nameservers have been
+      # unreliable from Let's Encrypt's validation servers, so no valid cert may
+      # be issued yet -- until that's resolved, Traefik falls back to a
+      # self-signed cert here and browsers will show a security warning that
+      # must be clicked through manually.
+      # Requires LAN split-horizon DNS (pjp.tplinkdns.com -> 192.168.2.158) so the
+      # admin link https://pjp.tplinkdns.com:8443/dbc/admin resolves internally.
+      # NOTE: match the whole /dbc prefix (not just /dbc/admin) so Next.js's
+      # /dbc/_next/* assets also load on :8443; /dbc/admin stays LAN-only because
+      # it's excluded on :443.
+      - "traefik.http.routers.dbc-admin.rule=Host(`pjp.tplinkdns.com`) && PathPrefix(`/dbc`)"
+      - "traefik.http.routers.dbc-admin.entrypoints=admin"
+      - "traefik.http.routers.dbc-admin.tls=true"
+      - "traefik.http.routers.dbc-admin.tls.certresolver=le"
+      - "traefik.http.routers.dbc-admin.service=dbc"
+      - "traefik.http.services.dbc.loadbalancer.server.port=3000"
+
+networks:
+  web:
+    external: true

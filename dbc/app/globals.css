@@ -1,0 +1,52 @@
+:root {
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  min-height: 100vh;
+}
+
+.page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  background: linear-gradient(135deg, #1e3a8a, #0f172a);
+  color: #f8fafc;
+  text-align: center;
+  padding: 2rem;
+}
+
+.page h1 {
+  font-size: clamp(2rem, 6vw, 4rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.page.admin h1 {
+  font-size: clamp(1.75rem, 4vw, 3rem);
+}
+
+.admin-link {
+  display: inline-block;
+  padding: 0.65rem 1.4rem;
+  border: 1px solid rgba(248, 250, 252, 0.4);
+  border-radius: 9999px;
+  color: #f8fafc;
+  text-decoration: none;
+  font-weight: 600;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.admin-link:hover {
+  background: rgba(248, 250, 252, 0.12);
+  border-color: rgba(248, 250, 252, 0.8);
+}

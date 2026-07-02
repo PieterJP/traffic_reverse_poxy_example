@@ -1,0 +1,34 @@
+services:
+  booking:
+    build: .
+    container_name: booking
+    restart: unless-stopped
+    expose:
+      - "80"
+    networks:
+      - web
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=web"
+      # Public site (internet facing). /admin is excluded so it is NOT reachable here.
+      - "traefik.http.routers.booking.rule=Host(`pjp1.ddns.net`) && !PathPrefix(`/admin`)"
+      - "traefik.http.routers.booking.entrypoints=websecure"
+      - "traefik.http.routers.booking.tls=true"
+      - "traefik.http.routers.booking.tls.certresolver=le"
+      - "traefik.http.routers.booking.service=booking"
+      # Admin page, served only on the internal-only :8443 entry point (LAN-only).
+      # Host-pinned + TLS so it serves the valid Let's Encrypt cert for pjp1.ddns.net.
+      # Requires LAN split-horizon DNS (pjp1.ddns.net -> 192.168.2.158) so the
+      # main page link https://pjp1.ddns.net:8443/admin resolves internally.
+      # NOTE: match the whole host (not just /admin) so the SPA's /assets/*.js and
+      # .css also load on :8443; /admin stays LAN-only because it's excluded on :443.
+      - "traefik.http.routers.booking-admin.rule=Host(`pjp1.ddns.net`)"
+      - "traefik.http.routers.booking-admin.entrypoints=admin"
+      - "traefik.http.routers.booking-admin.tls=true"
+      - "traefik.http.routers.booking-admin.tls.certresolver=le"
+      - "traefik.http.routers.booking-admin.service=booking"
+      - "traefik.http.services.booking.loadbalancer.server.port=80"
+
+networks:
+  web:
+    external: true
