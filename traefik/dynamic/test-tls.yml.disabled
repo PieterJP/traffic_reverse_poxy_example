@@ -1,0 +1,19 @@
+# Serves the self-signed short-lived test certificate (see ../test-certs/)
+# on the "test" entrypoint (:8444) for pjp1-test.ddns.net.
+#
+# Deliberately NOT pjp1.ddns.net: Traefik's TLS store keeps one certificate
+# per domain and never replaces it via a live reload once filled — and
+# pjp1.ddns.net's slot is permanently held by the real ACME cert. Using a
+# distinct hostname here is what makes live-reloading actually work.
+#
+# certFile/keyFile point at a specific releases/<timestamp>/ snapshot rather
+# than test-certs/current — Traefik also skips reloading TLS certs if the
+# parsed config is otherwise unchanged, so the path itself must change on
+# every regeneration too. generate-2h-cert.sh rewrites this file for you;
+# don't point it at "current".
+#
+# To disable:  mv test-tls.yml test-tls.yml.disabled
+tls:
+  certificates:
+    - certFile: /test-certs/releases/20260703092745/pjp1.crt
+      keyFile: /test-certs/releases/20260703092745/pjp1.key

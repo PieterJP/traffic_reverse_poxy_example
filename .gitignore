@@ -11,6 +11,15 @@ build/
 # Traefik's Let's Encrypt certificate storage (contains private keys/certs)
 traefik/letsencrypt/
 
+# Generated short-lived self-signed test certs (see traefik/test-certs/generate-2h-cert.sh)
+# and the "current" convenience symlink — private keys, regenerated on demand, never tracked.
+traefik/test-certs/releases/
+traefik/test-certs/current
+
+# Enabled test-cert dynamic config is generated/rewritten by generate-2h-cert.sh; only the
+# inert .disabled template (traefik/dynamic/test-tls.yml.disabled) is tracked.
+traefik/dynamic/test-tls.yml
+
 # Editor/OS cruft
 .DS_Store
 *.log

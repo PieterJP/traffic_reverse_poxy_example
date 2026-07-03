@@ -10,6 +10,9 @@ services:
       # Internal-only entry point for the booking admin page.
       # NOTE: keep :8443 unforwarded on the router so it stays LAN-only (not internet facing).
       - "--entrypoints.admin.address=:8443"
+      # Internal-only entry point for testing short-lived certs (see traefik/test-certs/).
+      # NOTE: keep :8444 unforwarded on the router, same as :8443.
+      - "--entrypoints.test.address=:8444"
       # Redirect all HTTP traffic to HTTPS
       - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
       - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
@@ -17,6 +20,9 @@ services:
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
       - "--providers.docker.network=web"
+      # File provider — dynamic TLS config not tied to a container (e.g. test-tls.yml)
+      - "--providers.file.directory=/dynamic"
+      - "--providers.file.watch=true"
       # Let's Encrypt (HTTP-01 challenge)
       - "--certificatesresolvers.le.acme.email=${ACME_EMAIL}"
       - "--certificatesresolvers.le.acme.storage=/letsencrypt/acme.json"
@@ -27,11 +33,14 @@ services:
     ports:
       - "80:80"
       - "443:443"
-      # Internal-only: do NOT port-forward 8443 on the router.
+      # Internal-only: do NOT port-forward 8443/8444 on the router.
       - "8443:8443"
+      - "8444:8444"
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
       - "./letsencrypt:/letsencrypt"
+      - "./dynamic:/dynamic:ro"
+      - "./test-certs:/test-certs:ro"
     networks:
       - web
 

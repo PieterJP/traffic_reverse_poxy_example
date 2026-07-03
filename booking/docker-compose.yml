@@ -27,6 +27,22 @@ services:
       - "traefik.http.routers.booking-admin.tls=true"
       - "traefik.http.routers.booking-admin.tls.certresolver=le"
       - "traefik.http.routers.booking-admin.service=booking"
+      # Test-only router for exercising short-lived-cert renewal logic (see
+      # traefik/test-certs/ + traefik/dynamic/test-tls.yml.disabled). Internal-only,
+      # same as :8443. No certresolver: it just serves whatever cert the file
+      # provider currently has loaded for this domain (or Traefik's self-signed
+      # default while dynamic/test-tls.yml is disabled).
+      # NOTE: deliberately a distinct hostname from pjp1.ddns.net (not just a
+      # different port) — Traefik's TLS store keeps one certificate per domain
+      # and, once a domain's slot is filled, a live config reload never
+      # replaces it with a different cert for that domain (only a full
+      # restart re-evaluates from scratch). Since pjp1.ddns.net's slot is
+      # already permanently held by the real ACME cert, live-reloading a test
+      # cert under that same name would never actually take effect.
+      - "traefik.http.routers.booking-test.rule=Host(`pjp1-test.ddns.net`)"
+      - "traefik.http.routers.booking-test.entrypoints=test"
+      - "traefik.http.routers.booking-test.tls=true"
+      - "traefik.http.routers.booking-test.service=booking"
       - "traefik.http.services.booking.loadbalancer.server.port=80"
 
 networks:
